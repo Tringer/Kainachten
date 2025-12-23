@@ -21,10 +21,9 @@
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
-
     body{
       margin:0;
-      min-height:100svh;
+      min-height:100svh; /* stable viewport */
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color:var(--text);
       background:
@@ -39,6 +38,7 @@
       overflow-y:auto;
     }
 
+    /* Mobile: start at top + safe-area */
     @media (max-width: 520px){
       body{
         place-items:start center;
@@ -46,6 +46,17 @@
         padding-right:16px;
         padding-bottom: calc(18px + env(safe-area-inset-bottom));
         padding-top: calc(18px + env(safe-area-inset-top));
+      }
+    }
+
+    /* Smartphone landscape: little height => keep title visible */
+    @media (max-height: 460px) and (orientation: landscape){
+      body{
+        place-items:start center;
+        padding-top: calc(10px + env(safe-area-inset-top));
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        padding-left:16px;
+        padding-right:16px;
       }
     }
 
@@ -329,6 +340,29 @@
       }
     }
 
+    .ripple{
+      position:fixed;
+      left:50%;
+      top:50%;
+      width:18px;
+      height:18px;
+      transform: translate(-50%,-50%) scale(.4);
+      border-radius:999px;
+      border: 3px solid rgba(251,191,36,.9);
+      box-shadow:
+        0 0 0 6px rgba(251,191,36,.18),
+        0 0 90px rgba(251,191,36,.55),
+        0 0 140px rgba(52,211,153,.25);
+      opacity:.95;
+      animation: rippleOut 1.35s ease-out forwards;
+    }
+    @keyframes rippleOut{
+      to{
+        transform: translate(-50%,-50%) scale(32);
+        opacity:0;
+      }
+    }
+
     .overlay{
       position:fixed;
       inset:0;
@@ -382,50 +416,6 @@
       font-size:28px;
       flex:0 0 auto;
       filter: drop-shadow(0 6px 16px rgba(0,0,0,.35));
-    }
-
-    /* Music toggle button */
-    .musicBtn{
-      position:fixed;
-      left:14px;
-      bottom:14px;
-      padding:10px 12px;
-      border-radius:16px;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.16);
-      color:rgba(243,244,246,.92);
-      font-weight:900;
-      font-size:12px;
-      backdrop-filter: blur(8px);
-      cursor:pointer;
-      user-select:none;
-      box-shadow: 0 18px 60px rgba(0,0,0,.25);
-      display:flex;
-      align-items:center;
-      gap:8px;
-      z-index: 10000;
-    }
-    .musicBtn:hover{ background: rgba(255,255,255,.14); }
-
-    .musicNote{
-      position:fixed;
-      left:14px;
-      bottom:54px;
-      padding:8px 10px;
-      border-radius:14px;
-      background: rgba(0,0,0,.20);
-      border:1px solid rgba(255,255,255,.12);
-      color:rgba(243,244,246,.78);
-      font-size:12px;
-      backdrop-filter: blur(8px);
-      pointer-events:none;
-      transition: opacity .35s ease, transform .35s ease;
-      max-width: 280px;
-      z-index: 10000;
-    }
-    .musicNote.hide{
-      opacity:0;
-      transform: translateY(8px);
     }
 
     /* Finale Image Overlay */
@@ -495,18 +485,56 @@
       backdrop-filter: blur(8px);
     }
 
-    /* Footer attribution */
+    /* Music UI */
+    .musicBtn{
+      position:fixed;
+      left:14px;
+      bottom:14px;
+      padding:10px 12px;
+      border-radius:16px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      color:rgba(243,244,246,.92);
+      font-weight:900;
+      font-size:12px;
+      backdrop-filter: blur(8px);
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 18px 60px rgba(0,0,0,.25);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      z-index: 10000;
+    }
+    .musicBtn:hover{ background: rgba(255,255,255,.14); }
+
+    .musicNote{
+      position:fixed;
+      left:14px;
+      bottom:54px;
+      padding:8px 10px;
+      border-radius:14px;
+      background: rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.12);
+      color:rgba(243,244,246,.78);
+      font-size:12px;
+      backdrop-filter: blur(8px);
+      pointer-events:none;
+      transition: opacity .35s ease, transform .35s ease;
+      max-width: 280px;
+      z-index: 10000;
+    }
+    .musicNote.hide{
+      opacity:0;
+      transform: translateY(8px);
+    }
+
     footer{
       margin-top:18px;
       text-align:center;
       color: rgba(243,244,246,.70);
       font-size:12px;
       line-height:1.5;
-    }
-    footer a{
-      color: rgba(243,244,246,.85);
-      text-decoration: underline;
-      text-underline-offset: 2px;
     }
 
     /* Mobile polish */
@@ -541,10 +569,34 @@
       .finaleImg{ border-radius:16px; }
       .finaleCap{ font-size:13px; backdrop-filter:none; }
       .finaleBackdrop{ backdrop-filter:none; }
+
+      .star{ filter:none; }
+      .stream{ filter:none; }
     }
 
+    /* Landscape on small height: compact typography */
+    @media (max-height: 460px) and (orientation: landscape){
+      .card{ padding:14px; border-radius:18px; }
+      .topRow{ margin-bottom:10px; gap:10px; }
+      h1{ font-size:26px; line-height:1.12; }
+      .sub{ font-size:12px; margin-top:6px; }
+      .panel{ padding:12px; border-radius:16px; }
+      .msg{ font-size:14px; line-height:1.45; }
+      .course, .monthRow{ padding:10px; border-radius:14px; margin-top:8px; }
+      .bar{ height:12px; margin:8px 0 10px 0; }
+      .stream{ filter:none; }
+      .star{ filter:none; }
+      .finaleBackdrop{ backdrop-filter:none; }
+      .finaleGlow{ filter:none; }
+    }
+
+    /* During finale: lighten background work a bit */
+    body.finaleRunning .snow{ opacity:.18; }
+    body.finaleRunning .flake{ filter:none; }
+    body.finaleRunning .banner{ backdrop-filter:none; }
+
     @media (prefers-reduced-motion: reduce){
-      .flake, .piece, .stream, .pop, .star, .overlay, .banner { display:none !important; }
+      .flake, .piece, .stream, .pop, .star, .overlay, .banner, .ripple { display:none !important; }
       .fill{ transition:none; }
       .finale{ transition:none; }
     }
@@ -552,10 +604,9 @@
 </head>
 
 <body>
-  <!-- ✅ Kevin MacLeod Jingle Bells (local file recommended for iOS) -->
+  <!-- Kevin MacLeod audio (you provide the mp3 file locally) -->
   <audio id="bgMusic" preload="auto" loop>
     <source src="jingle-bells.mp3" type="audio/mpeg">
-    Dein Browser unterstützt Audio leider nicht.
   </audio>
 
   <section class="card" id="card">
@@ -602,15 +653,14 @@
       </div>
     </div>
 
-    <!-- ✅ Attribution Footer (Kevin MacLeod) -->
     <footer>
-	  "Jingle Bells" Kevin MacLeod (incompetech.com)<br>
-	  Licensed under Creative Commons: By Attribution 4.0 License<br>
-	  http://creativecommons.org/licenses/by/4.0/
-	</footer>
-
+      "Jingle Bells" Kevin MacLeod (incompetech.com)<br>
+      Licensed under Creative Commons: By Attribution 4.0 License<br>
+      http://creativecommons.org/licenses/by/4.0/
+    </footer>
   </section>
 
+  <!-- FX layers -->
   <div class="fx" id="fx" aria-hidden="true"></div>
   <div class="overlay" id="overlay" aria-hidden="true"></div>
 
@@ -622,15 +672,17 @@
     <div class="bannerIcon">🎆</div>
   </div>
 
+  <!-- Finale image overlay -->
   <div class="finale" id="finale" aria-hidden="true">
     <div class="finaleBackdrop"></div>
     <div class="finaleFrame">
       <div class="finaleGlow"></div>
       <img class="finaleImg" id="finaleImg" alt="Finale Bild" />
-      <div class="finaleCap" id="finaleCap">🎁 Surprise Moment! 🎄✨</div>
+      <div class="finaleCap" id="finaleCap">🎁 Überraschung! 🎄✨</div>
     </div>
   </div>
 
+  <!-- Music UI -->
   <button class="musicBtn" id="musicBtn" aria-pressed="false" title="Musik ein/aus">
     🔔 <span id="musicBtnText">Musik an</span>
   </button>
@@ -638,16 +690,16 @@
 
   <script>
     const isMobile = window.matchMedia("(max-width: 520px)").matches;
+    const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+    const isShortLandscape = isLandscape && window.matchMedia("(max-height: 460px)").matches;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // ====== CONFIG ======
-    // Finale Image
-    const FINALE_IMAGE_SRC = "finale.png"; // <-- CHANGE THIS
+    const FINALE_IMAGE_SRC = "finale.png";     // <-- dein Bild
     const FINALE_CAPTION   = "🎁 Überraschung! Frohe Kainachten, Kai! 🎄✨";
     const FINALE_SHOW_MS   = 3200;
 
-    // Music
-    const MUSIC_DEFAULT_VOLUME = isMobile ? 0.65 : 0.55; // start a bit louder on mobile
+    const MUSIC_DEFAULT_VOLUME = isMobile ? 0.65 : 0.55; // initial volume
     // ====================
 
     // Snow
@@ -667,7 +719,7 @@
 
     // Months (read-only)
     const MONTHS = ["November","Dezember","Januar","Februar","März"];
-    const MONTH_STATUS = [true,true,false,false,false]; // <-- nur hier ändern
+    const MONTH_STATUS = [true,true,false,false,false]; // <-- hier steuern
     function renderMonths(){
       const el = document.getElementById("months");
       el.innerHTML = "";
@@ -681,7 +733,7 @@
     }
 
     // Courses
-    const STORAGE = "kainachten_courses_v16";
+    const STORAGE = "kainachten_courses_final";
     const courses = [
       "Foundations of Coding Front-End",
       "Introduction to Programming With C#",
@@ -705,7 +757,7 @@
     const banner = document.getElementById("banner");
     const card = document.getElementById("card");
 
-    // Finale
+    // Finale image
     const finale = document.getElementById("finale");
     const finaleImg = document.getElementById("finaleImg");
     const finaleCap = document.getElementById("finaleCap");
@@ -748,35 +800,28 @@
     const musicBtnText = document.getElementById("musicBtnText");
     const musicNote = document.getElementById("musicNote");
 
+    bgMusic.volume = MUSIC_DEFAULT_VOLUME;
+
     let musicArmed = true;
     let musicPlaying = false;
-
-    // set initial volume
-    bgMusic.volume = MUSIC_DEFAULT_VOLUME;
 
     async function startMusicFromGesture(){
       if (!musicArmed) return;
       musicArmed = false;
-
       try{
-        // Ensure from a user gesture
         await bgMusic.play();
         musicPlaying = true;
-        if (musicBtn) {
-          musicBtn.setAttribute("aria-pressed","true");
-          musicBtnText.textContent = "Musik aus";
-        }
-        if (musicNote) musicNote.classList.add("hide");
+        musicBtn.setAttribute("aria-pressed","true");
+        musicBtnText.textContent = "Musik aus";
+        musicNote?.classList.add("hide");
       }catch(e){
-        // If play fails, keep it armed so another tap can try again
-        musicArmed = true;
+        musicArmed = true; // allow retry on next tap
       }
     }
 
     function toggleMusic(e){
       e?.stopPropagation?.();
       if (!musicPlaying){
-        // This click is a user gesture too
         bgMusic.play().then(()=>{
           musicPlaying = true;
           musicBtn.setAttribute("aria-pressed","true");
@@ -791,17 +836,15 @@
       }
     }
 
-    if (musicBtn) musicBtn.addEventListener("click", toggleMusic);
+    musicBtn.addEventListener("click", toggleMusic);
 
-    // first gesture anywhere on page
-    window.addEventListener("pointerdown", startMusicFromGesture, {capture:true, passive:true});
-    window.addEventListener("touchstart", startMusicFromGesture, {capture:true, passive:true});
-    window.addEventListener("mousedown", startMusicFromGesture, {capture:true, passive:true});
-    window.addEventListener("keydown", startMusicFromGesture, {capture:true, passive:true});
+    ["pointerdown","touchstart","mousedown","keydown"].forEach(ev=>{
+      window.addEventListener(ev, startMusicFromGesture, {capture:true, passive:true});
+    });
 
     setTimeout(()=>{ musicNote?.classList.add("hide"); }, 5200);
 
-    // ===== Finale FX + Achievement sound (kept) =====
+    // ===== WebAudio Achievement Sound =====
     let audioCtx = null;
     function ensureAudio(){
       if (!audioCtx){
@@ -819,12 +862,24 @@
       if (!ctx) return;
 
       const now = ctx.currentTime;
+
       const master = ctx.createGain();
-      const peak = isMobile ? 0.65 : 0.85;
+      const peak = isMobile ? 0.60 : 0.82;
       master.gain.setValueAtTime(0.0001, now);
       master.gain.exponentialRampToValueAtTime(peak, now + 0.02);
-      master.gain.exponentialRampToValueAtTime(0.0001, now + 1.95);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + 1.9);
       master.connect(ctx.destination);
+
+      const delay = ctx.createDelay(1.0);
+      delay.delayTime.setValueAtTime(0.18, now);
+      const fb = ctx.createGain(); fb.gain.setValueAtTime(0.28, now);
+      const wet = ctx.createGain(); wet.gain.setValueAtTime(0.42, now);
+      delay.connect(fb); fb.connect(delay);
+      delay.connect(wet); wet.connect(master);
+
+      const send = ctx.createGain();
+      send.gain.setValueAtTime(0.38, now);
+      send.connect(delay);
 
       const note = (freq, t, dur, type="sine", gain=0.18) => {
         const osc = ctx.createOscillator();
@@ -834,19 +889,34 @@
         g.gain.setValueAtTime(0.0001, t);
         g.gain.exponentialRampToValueAtTime(gain, t + 0.01);
         g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-        osc.connect(g); g.connect(master);
-        osc.start(t); osc.stop(t + dur + 0.02);
+        osc.connect(g);
+
+        const dry = ctx.createGain();
+        dry.gain.setValueAtTime(1.0, t);
+        g.connect(dry); dry.connect(master);
+        g.connect(send);
+
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
       };
 
       const base = now + 0.02;
+      const step = 0.075;
       const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-      freqs.forEach((f, i)=> note(f, base + i*0.075, 0.22, "triangle", 0.22));
-      const hit = base + freqs.length*0.075 + 0.06;
+
+      freqs.forEach((f, i) => {
+        note(f, base + i*step, 0.22, "triangle", 0.22);
+        note(f, base + i*step + 0.006, 0.20, "sine", 0.13);
+      });
+
+      const hit = base + freqs.length*step + 0.06;
       note(523.25, hit, 0.85, "sawtooth", 0.14);
       note(659.25, hit, 0.85, "sawtooth", 0.13);
       note(783.99, hit, 0.85, "sawtooth", 0.12);
+      note(1046.50, hit + 0.05, 0.65, "square", 0.09);
     }
 
+    // ===== Progress UI + Finale =====
     let partyLock = false;
 
     function update(celebrate){
@@ -877,13 +947,15 @@
         if (celebrate && !partyLock){
           partyLock = true;
           megaFinale();
-          setTimeout(()=> partyLock = false, 5400);
+          setTimeout(()=> partyLock = false, 5600);
         }
       }
     }
 
     function megaFinale(){
       playAchievementSound();
+
+      document.body.classList.add("finaleRunning");
 
       card.classList.remove("punch");
       void card.offsetWidth;
@@ -907,10 +979,15 @@
         const rand = (a,b)=> a + Math.random()*(b-a);
         const pick = ()=> colors[Math.floor(Math.random()*colors.length)];
 
-        const STAR_COUNT = isMobile ? 40 : 140;
-        const STREAM_COUNT = isMobile ? 18 : 60;
-        const CONFETTI_COUNT = isMobile ? 180 : 620;
-        const CANNON_COUNT = isMobile ? 70 : 220;
+        // ✅ Landscape short height => Lite Finale so it won't stutter/hang
+        const liteFinale = isShortLandscape;
+
+        const STAR_COUNT = liteFinale ? 16 : (isMobile ? 40 : 140);
+        const STREAM_COUNT = liteFinale ? 8  : (isMobile ? 18 : 60);
+        const CONFETTI_COUNT = liteFinale ? 70 : (isMobile ? 180 : 620);
+        const CANNON_COUNT = liteFinale ? 24 : (isMobile ? 70 : 220);
+
+        fx.appendChild(Object.assign(document.createElement("div"), { className:"ripple" }));
 
         for (let i=0;i<STAR_COUNT;i++){
           const s = document.createElement("div");
@@ -965,7 +1042,8 @@
               b.style.width = rand(7,16) + "px";
               b.style.height = rand(7,16) + "px";
               b.style.background = pick();
-              const dx = side === "left" ? rand(220, (isMobile?760:1040)) : -rand(220, (isMobile?760:1040));
+              const maxDx = isMobile ? 760 : 1040;
+              const dx = side === "left" ? rand(220, maxDx) : -rand(220, maxDx);
               const dy = rand(-280,280);
               b.style.setProperty("--dx", dx + "px");
               b.style.setProperty("--dy", dy + "px");
@@ -978,11 +1056,15 @@
           burst("right");
         }, 260);
 
-        setTimeout(()=> overlay.classList.remove("show"), 3100);
+        // In short landscape, end overlay a bit quicker
+        setTimeout(()=> overlay.classList.remove("show"), isShortLandscape ? 2200 : 3100);
         setTimeout(()=> { fx.innerHTML = ""; }, 5400);
       }
 
+      // show image near end
       setTimeout(()=> showFinaleImage(), 1200);
+
+      setTimeout(()=> document.body.classList.remove("finaleRunning"), 5600);
     }
 
     renderMonths();
