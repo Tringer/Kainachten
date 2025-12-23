@@ -24,7 +24,7 @@
 
     body{
       margin:0;
-      min-height:100svh;
+      min-height:100svh; /* stable viewport */
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color:var(--text);
       background:
@@ -38,11 +38,11 @@
       overflow-x:hidden;
       overflow-y:auto;
 
-      /* helps when browser UI overlays the top area during scroll/focus */
-      scroll-padding-top: 80px;
+      /* helps if browser UI overlays top during scroll/focus */
+      scroll-padding-top: 120px;
     }
 
-    /* ✅ Smartphone portrait: start at top + safe-area */
+    /* ✅ Smartphone portrait */
     @media (max-width: 520px){
       body{
         place-items:start center;
@@ -53,27 +53,43 @@
       }
     }
 
-    /* ✅ Smartphone landscape: little height => keep title visible */
+    /* ✅ Smartphone landscape */
     @media (max-height: 460px) and (orientation: landscape){
       body{
         place-items:start center;
-        padding-top: calc(10px + env(safe-area-inset-top));
+        padding-top: calc(10px + env(safe-area-inset-top) + 22px);
         padding-bottom: calc(10px + env(safe-area-inset-bottom));
         padding-left:16px;
         padding-right:16px;
       }
     }
 
-    /* ✅ TABLET FIX (portrait + landscape): always start at top + extra offset */
+    /* ✅ Tablet (portrait + landscape baseline) */
     @media (min-width: 521px) and (max-width: 1024px){
       body{
         place-items:start center;
         padding-left:28px;
         padding-right:28px;
         padding-bottom: calc(22px + env(safe-area-inset-bottom));
-        /* extra reserve for iPad address bar overlay */
+        /* extra reserve (address bar overlay quirks) */
         padding-top: calc(34px + env(safe-area-inset-top) + 28px);
       }
+    }
+
+    /* ✅ Tablet + Landscape (Samsung Tablet + Firefox fix) */
+    @media (min-width: 521px) and (max-width: 1024px) and (orientation: landscape){
+      body{
+        place-items:start center;
+        /* Firefox Android sometimes overlays address bar without safe-area => add hard reserve */
+        padding-top: calc(18px + env(safe-area-inset-top) + 90px);
+        padding-bottom: calc(18px + env(safe-area-inset-bottom));
+      }
+
+      .card{ padding: 22px; border-radius: 24px; }
+
+      h1{ font-size: clamp(30px, 3.1vw, 46px); line-height: 1.06; }
+      .sub{ font-size: 15px; margin-top: 8px; }
+      .topRow{ margin-bottom: 16px; }
     }
 
     .card{
@@ -558,6 +574,32 @@
     body.finaleRunning .flake{ filter:none; }
     body.finaleRunning .banner{ backdrop-filter:none; }
 
+    /* Mobile typography adjustments */
+    @media (max-width: 520px){
+      .card{ padding:18px; border-radius:22px; }
+      .topRow{ margin-bottom:14px; gap:12px; }
+      h1{ font-size:32px; line-height:1.08; }
+      .sub{ font-size:14px; margin-top:10px; }
+      .badge{ width:100%; padding:12px; border-radius:18px; backdrop-filter:none; }
+      .badgeIcon{ width:42px; height:42px; font-size:22px; }
+      .panel{ padding:14px; border-radius:18px; }
+      .msg{ font-size:16px; line-height:1.55; }
+      .kicker{ font-size:12px; }
+      .course, .monthRow{ padding:12px; border-radius:16px; margin-top:10px; }
+      .courseName{ font-size:14px; }
+      .check{ width:24px; height:24px; border-radius:9px; font-size:14px; }
+      .bar{ height:14px; margin:10px 0 12px 0; }
+      .banner{ top:12px; padding:12px 14px; border-radius:18px; backdrop-filter:none; }
+      .bannerTitle{ font-size:15px; }
+      .bannerSub{ font-size:12px; }
+      .bannerIcon{ font-size:24px; }
+      .musicNote{ display:none; }
+      .finaleBackdrop{ backdrop-filter:none; }
+      .finaleGlow{ filter:none; }
+      .star{ filter:none; }
+      .stream{ filter:none; }
+    }
+
     @media (prefers-reduced-motion: reduce){
       .flake, .piece, .stream, .pop, .star, .overlay, .banner, .ripple { display:none !important; }
       .fill{ transition:none; }
@@ -653,11 +695,12 @@
     const isShortLandscape = isLandscape && window.matchMedia("(max-height: 460px)").matches;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // CONFIG
+    // ====== CONFIG ======
     const FINALE_IMAGE_SRC = "finale.png";
     const FINALE_CAPTION   = "🎁 Überraschung! Frohe Kainachten, Kai! 🎄✨";
     const FINALE_SHOW_MS   = 3200;
     const MUSIC_DEFAULT_VOLUME = isMobile ? 0.65 : 0.55;
+    // ====================
 
     // Snow
     const snow = document.getElementById("snow");
@@ -674,7 +717,7 @@
       snow.appendChild(f);
     }
 
-    // Months read-only
+    // Months (read-only)
     const MONTHS = ["November","Dezember","Januar","Februar","März"];
     const MONTH_STATUS = [true,true,false,false,false]; // <-- change here
     function renderMonths(){
@@ -690,7 +733,7 @@
     }
 
     // Courses
-    const STORAGE = "kainachten_courses_tabletfix";
+    const STORAGE = "kainachten_courses_samsungtablet";
     const courses = [
       "Foundations of Coding Front-End",
       "Introduction to Programming With C#",
@@ -714,7 +757,7 @@
     const banner = document.getElementById("banner");
     const card = document.getElementById("card");
 
-    // Finale
+    // Finale image
     const finale = document.getElementById("finale");
     const finaleImg = document.getElementById("finaleImg");
     const finaleCap = document.getElementById("finaleCap");
@@ -751,13 +794,14 @@
       update(false);
     }
 
-    // Music tap-to-play
+    // ===== Music (Tap-to-play, iOS/Android-safe) =====
     const bgMusic = document.getElementById("bgMusic");
     const musicBtn = document.getElementById("musicBtn");
     const musicBtnText = document.getElementById("musicBtnText");
     const musicNote = document.getElementById("musicNote");
 
     bgMusic.volume = MUSIC_DEFAULT_VOLUME;
+
     let musicArmed = true;
     let musicPlaying = false;
 
@@ -791,14 +835,14 @@
         musicBtnText.textContent = "Musik an";
       }
     }
-    musicBtn.addEventListener("click", toggleMusic);
 
+    musicBtn.addEventListener("click", toggleMusic);
     ["pointerdown","touchstart","mousedown","keydown"].forEach(ev=>{
       window.addEventListener(ev, startMusicFromGesture, {capture:true, passive:true});
     });
     setTimeout(()=>{ musicNote?.classList.add("hide"); }, 5200);
 
-    // Achievement sound (WebAudio)
+    // ===== Achievement sound (WebAudio) =====
     let audioCtx = null;
     function ensureAudio(){
       if (!audioCtx){
@@ -810,6 +854,7 @@
       }
       return audioCtx;
     }
+
     function playAchievementSound(){
       const ctx = ensureAudio();
       if (!ctx) return;
@@ -866,7 +911,7 @@
       note(1046.50, hit + 0.05, 0.65, "square", 0.09);
     }
 
-    // Progress + Finale animation
+    // ===== Progress UI + Finale =====
     let partyLock = false;
 
     function update(celebrate){
@@ -928,11 +973,13 @@
         const rand = (a,b)=> a + Math.random()*(b-a);
         const pick = ()=> colors[Math.floor(Math.random()*colors.length)];
 
+        // ✅ Only ultra-short landscape needs lite finale (phones). Tablet stays full.
         const liteFinale = isShortLandscape;
-        const STAR_COUNT = liteFinale ? 16 : (isMobile ? 40 : 140);
-        const STREAM_COUNT = liteFinale ? 8  : (isMobile ? 18 : 60);
-        const CONFETTI_COUNT = liteFinale ? 70 : (isMobile ? 180 : 620);
-        const CANNON_COUNT = liteFinale ? 24 : (isMobile ? 70 : 220);
+
+        const STAR_COUNT = liteFinale ? 18 : (isMobile ? 40 : 140);
+        const STREAM_COUNT = liteFinale ? 9  : (isMobile ? 18 : 60);
+        const CONFETTI_COUNT = liteFinale ? 90 : (isMobile ? 180 : 620);
+        const CANNON_COUNT = liteFinale ? 28 : (isMobile ? 70 : 220);
 
         fx.appendChild(Object.assign(document.createElement("div"), { className:"ripple" }));
 
