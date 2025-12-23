@@ -21,9 +21,10 @@
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
+
     body{
       margin:0;
-      min-height:100svh; /* stable viewport */
+      min-height:100svh;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color:var(--text);
       background:
@@ -36,9 +37,12 @@
       padding:34px;
       overflow-x:hidden;
       overflow-y:auto;
+
+      /* helps when browser UI overlays the top area during scroll/focus */
+      scroll-padding-top: 80px;
     }
 
-    /* Mobile: start at top + safe-area */
+    /* ✅ Smartphone portrait: start at top + safe-area */
     @media (max-width: 520px){
       body{
         place-items:start center;
@@ -49,7 +53,7 @@
       }
     }
 
-    /* Smartphone landscape: little height => keep title visible */
+    /* ✅ Smartphone landscape: little height => keep title visible */
     @media (max-height: 460px) and (orientation: landscape){
       body{
         place-items:start center;
@@ -57,6 +61,18 @@
         padding-bottom: calc(10px + env(safe-area-inset-bottom));
         padding-left:16px;
         padding-right:16px;
+      }
+    }
+
+    /* ✅ TABLET FIX (portrait + landscape): always start at top + extra offset */
+    @media (min-width: 521px) and (max-width: 1024px){
+      body{
+        place-items:start center;
+        padding-left:28px;
+        padding-right:28px;
+        padding-bottom: calc(22px + env(safe-area-inset-bottom));
+        /* extra reserve for iPad address bar overlay */
+        padding-top: calc(34px + env(safe-area-inset-top) + 28px);
       }
     }
 
@@ -537,60 +553,7 @@
       line-height:1.5;
     }
 
-    /* Mobile polish */
-    @media (max-width: 520px){
-      .card{ padding:18px; border-radius:22px; }
-      .topRow{ margin-bottom:14px; gap:12px; }
-      h1{ font-size:32px; line-height:1.08; }
-      .sub{ font-size:14px; margin-top:10px; }
-
-      .badge{ width:100%; padding:12px; border-radius:18px; backdrop-filter:none; }
-      .badgeIcon{ width:42px; height:42px; font-size:22px; }
-      .badgeMain{ font-size:15px; }
-      .badgeSmall{ font-size:12px; }
-
-      .panel{ padding:14px; border-radius:18px; }
-      .msg{ font-size:16px; line-height:1.55; }
-      .kicker{ font-size:12px; }
-
-      .course, .monthRow{ padding:12px; border-radius:16px; margin-top:10px; }
-      .courseName{ font-size:14px; }
-      .check{ width:24px; height:24px; border-radius:9px; font-size:14px; }
-      .bar{ height:14px; margin:10px 0 12px 0; }
-
-      .banner{ top:12px; padding:12px 14px; border-radius:18px; backdrop-filter:none; }
-      .bannerTitle{ font-size:15px; }
-      .bannerSub{ font-size:12px; }
-      .bannerIcon{ font-size:24px; }
-
-      .musicNote{ display:none; }
-
-      .finaleFrame{ width: min(560px, calc(100vw - 28px)); padding:10px; border-radius:22px; }
-      .finaleImg{ border-radius:16px; }
-      .finaleCap{ font-size:13px; backdrop-filter:none; }
-      .finaleBackdrop{ backdrop-filter:none; }
-
-      .star{ filter:none; }
-      .stream{ filter:none; }
-    }
-
-    /* Landscape on small height: compact typography */
-    @media (max-height: 460px) and (orientation: landscape){
-      .card{ padding:14px; border-radius:18px; }
-      .topRow{ margin-bottom:10px; gap:10px; }
-      h1{ font-size:26px; line-height:1.12; }
-      .sub{ font-size:12px; margin-top:6px; }
-      .panel{ padding:12px; border-radius:16px; }
-      .msg{ font-size:14px; line-height:1.45; }
-      .course, .monthRow{ padding:10px; border-radius:14px; margin-top:8px; }
-      .bar{ height:12px; margin:8px 0 10px 0; }
-      .stream{ filter:none; }
-      .star{ filter:none; }
-      .finaleBackdrop{ backdrop-filter:none; }
-      .finaleGlow{ filter:none; }
-    }
-
-    /* During finale: lighten background work a bit */
+    /* During finale */
     body.finaleRunning .snow{ opacity:.18; }
     body.finaleRunning .flake{ filter:none; }
     body.finaleRunning .banner{ backdrop-filter:none; }
@@ -604,7 +567,6 @@
 </head>
 
 <body>
-  <!-- Kevin MacLeod audio (you provide the mp3 file locally) -->
   <audio id="bgMusic" preload="auto" loop>
     <source src="jingle-bells.mp3" type="audio/mpeg">
   </audio>
@@ -660,7 +622,6 @@
     </footer>
   </section>
 
-  <!-- FX layers -->
   <div class="fx" id="fx" aria-hidden="true"></div>
   <div class="overlay" id="overlay" aria-hidden="true"></div>
 
@@ -672,7 +633,6 @@
     <div class="bannerIcon">🎆</div>
   </div>
 
-  <!-- Finale image overlay -->
   <div class="finale" id="finale" aria-hidden="true">
     <div class="finaleBackdrop"></div>
     <div class="finaleFrame">
@@ -682,7 +642,6 @@
     </div>
   </div>
 
-  <!-- Music UI -->
   <button class="musicBtn" id="musicBtn" aria-pressed="false" title="Musik ein/aus">
     🔔 <span id="musicBtnText">Musik an</span>
   </button>
@@ -694,13 +653,11 @@
     const isShortLandscape = isLandscape && window.matchMedia("(max-height: 460px)").matches;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // ====== CONFIG ======
-    const FINALE_IMAGE_SRC = "finale.png";     // <-- dein Bild
+    // CONFIG
+    const FINALE_IMAGE_SRC = "finale.png";
     const FINALE_CAPTION   = "🎁 Überraschung! Frohe Kainachten, Kai! 🎄✨";
     const FINALE_SHOW_MS   = 3200;
-
-    const MUSIC_DEFAULT_VOLUME = isMobile ? 0.65 : 0.55; // initial volume
-    // ====================
+    const MUSIC_DEFAULT_VOLUME = isMobile ? 0.65 : 0.55;
 
     // Snow
     const snow = document.getElementById("snow");
@@ -717,9 +674,9 @@
       snow.appendChild(f);
     }
 
-    // Months (read-only)
+    // Months read-only
     const MONTHS = ["November","Dezember","Januar","Februar","März"];
-    const MONTH_STATUS = [true,true,false,false,false]; // <-- hier steuern
+    const MONTH_STATUS = [true,true,false,false,false]; // <-- change here
     function renderMonths(){
       const el = document.getElementById("months");
       el.innerHTML = "";
@@ -733,7 +690,7 @@
     }
 
     // Courses
-    const STORAGE = "kainachten_courses_final";
+    const STORAGE = "kainachten_courses_tabletfix";
     const courses = [
       "Foundations of Coding Front-End",
       "Introduction to Programming With C#",
@@ -757,7 +714,7 @@
     const banner = document.getElementById("banner");
     const card = document.getElementById("card");
 
-    // Finale image
+    // Finale
     const finale = document.getElementById("finale");
     const finaleImg = document.getElementById("finaleImg");
     const finaleCap = document.getElementById("finaleCap");
@@ -794,14 +751,13 @@
       update(false);
     }
 
-    // ===== Music (Tap-to-play, iOS-safe) =====
+    // Music tap-to-play
     const bgMusic = document.getElementById("bgMusic");
     const musicBtn = document.getElementById("musicBtn");
     const musicBtnText = document.getElementById("musicBtnText");
     const musicNote = document.getElementById("musicNote");
 
     bgMusic.volume = MUSIC_DEFAULT_VOLUME;
-
     let musicArmed = true;
     let musicPlaying = false;
 
@@ -815,7 +771,7 @@
         musicBtnText.textContent = "Musik aus";
         musicNote?.classList.add("hide");
       }catch(e){
-        musicArmed = true; // allow retry on next tap
+        musicArmed = true;
       }
     }
 
@@ -835,16 +791,14 @@
         musicBtnText.textContent = "Musik an";
       }
     }
-
     musicBtn.addEventListener("click", toggleMusic);
 
     ["pointerdown","touchstart","mousedown","keydown"].forEach(ev=>{
       window.addEventListener(ev, startMusicFromGesture, {capture:true, passive:true});
     });
-
     setTimeout(()=>{ musicNote?.classList.add("hide"); }, 5200);
 
-    // ===== WebAudio Achievement Sound =====
+    // Achievement sound (WebAudio)
     let audioCtx = null;
     function ensureAudio(){
       if (!audioCtx){
@@ -856,13 +810,11 @@
       }
       return audioCtx;
     }
-
     function playAchievementSound(){
       const ctx = ensureAudio();
       if (!ctx) return;
 
       const now = ctx.currentTime;
-
       const master = ctx.createGain();
       const peak = isMobile ? 0.60 : 0.82;
       master.gain.setValueAtTime(0.0001, now);
@@ -903,12 +855,10 @@
       const base = now + 0.02;
       const step = 0.075;
       const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-
       freqs.forEach((f, i) => {
         note(f, base + i*step, 0.22, "triangle", 0.22);
         note(f, base + i*step + 0.006, 0.20, "sine", 0.13);
       });
-
       const hit = base + freqs.length*step + 0.06;
       note(523.25, hit, 0.85, "sawtooth", 0.14);
       note(659.25, hit, 0.85, "sawtooth", 0.13);
@@ -916,7 +866,7 @@
       note(1046.50, hit + 0.05, 0.65, "square", 0.09);
     }
 
-    // ===== Progress UI + Finale =====
+    // Progress + Finale animation
     let partyLock = false;
 
     function update(celebrate){
@@ -954,7 +904,6 @@
 
     function megaFinale(){
       playAchievementSound();
-
       document.body.classList.add("finaleRunning");
 
       card.classList.remove("punch");
@@ -979,9 +928,7 @@
         const rand = (a,b)=> a + Math.random()*(b-a);
         const pick = ()=> colors[Math.floor(Math.random()*colors.length)];
 
-        // ✅ Landscape short height => Lite Finale so it won't stutter/hang
         const liteFinale = isShortLandscape;
-
         const STAR_COUNT = liteFinale ? 16 : (isMobile ? 40 : 140);
         const STREAM_COUNT = liteFinale ? 8  : (isMobile ? 18 : 60);
         const CONFETTI_COUNT = liteFinale ? 70 : (isMobile ? 180 : 620);
@@ -1056,14 +1003,11 @@
           burst("right");
         }, 260);
 
-        // In short landscape, end overlay a bit quicker
         setTimeout(()=> overlay.classList.remove("show"), isShortLandscape ? 2200 : 3100);
         setTimeout(()=> { fx.innerHTML = ""; }, 5400);
       }
 
-      // show image near end
       setTimeout(()=> showFinaleImage(), 1200);
-
       setTimeout(()=> document.body.classList.remove("finaleRunning"), 5600);
     }
 
