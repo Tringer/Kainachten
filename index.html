@@ -22,10 +22,9 @@
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
 
-    /* Use stable viewport height on mobile browsers */
     body{
       margin:0;
-      min-height:100svh; /* fixes mobile address-bar quirks better than 100vh */
+      min-height:100svh;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color:var(--text);
       background:
@@ -37,11 +36,9 @@
       place-items:center;
       padding:34px;
       overflow-x:hidden;
-      /* allow scroll if needed on very small screens */
       overflow-y:auto;
     }
 
-    /* Mobile: start content near top, with safe-area padding */
     @media (max-width: 520px){
       body{
         place-items:start center;
@@ -332,29 +329,6 @@
       }
     }
 
-    .ripple{
-      position:fixed;
-      left:50%;
-      top:50%;
-      width:18px;
-      height:18px;
-      transform: translate(-50%,-50%) scale(.4);
-      border-radius:999px;
-      border: 3px solid rgba(251,191,36,.9);
-      box-shadow:
-        0 0 0 6px rgba(251,191,36,.18),
-        0 0 90px rgba(251,191,36,.55),
-        0 0 140px rgba(52,211,153,.25);
-      opacity:.95;
-      animation: rippleOut 1.35s ease-out forwards;
-    }
-    @keyframes rippleOut{
-      to{
-        transform: translate(-50%,-50%) scale(32);
-        opacity:0;
-      }
-    }
-
     .overlay{
       position:fixed;
       inset:0;
@@ -454,7 +428,7 @@
       transform: translateY(8px);
     }
 
-    /* NEW: Finale Image Overlay */
+    /* Finale Image Overlay */
     .finale{
       position:fixed;
       inset:0;
@@ -521,6 +495,20 @@
       backdrop-filter: blur(8px);
     }
 
+    /* Footer attribution */
+    footer{
+      margin-top:18px;
+      text-align:center;
+      color: rgba(243,244,246,.70);
+      font-size:12px;
+      line-height:1.5;
+    }
+    footer a{
+      color: rgba(243,244,246,.85);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
     /* Mobile polish */
     @media (max-width: 520px){
       .card{ padding:18px; border-radius:22px; }
@@ -553,25 +541,10 @@
       .finaleImg{ border-radius:16px; }
       .finaleCap{ font-size:13px; backdrop-filter:none; }
       .finaleBackdrop{ backdrop-filter:none; }
-
-      /* Mobile: remove heavier filters on falling stars/streams */
-      .star{ filter:none; }
-      .stream{ filter:none; }
     }
-
-    @media (max-width: 360px){
-      h1{ font-size:28px; }
-      .msg{ font-size:15px; }
-    }
-
-    /* During finale: reduce costly background painting */
-    body.finaleRunning .snow{ opacity: .18; }
-    body.finaleRunning .flake{ filter:none; }
-    body.finaleRunning .badge{ backdrop-filter:none; }
-    body.finaleRunning .banner{ backdrop-filter:none; }
 
     @media (prefers-reduced-motion: reduce){
-      .flake, .piece, .stream, .pop, .star, .overlay, .banner, .ripple { display:none !important; }
+      .flake, .piece, .stream, .pop, .star, .overlay, .banner { display:none !important; }
       .fill{ transition:none; }
       .finale{ transition:none; }
     }
@@ -579,6 +552,12 @@
 </head>
 
 <body>
+  <!-- ✅ Kevin MacLeod Jingle Bells (local file recommended for iOS) -->
+  <audio id="bgMusic" preload="auto" loop>
+    <source src="jingle-bells.mp3" type="audio/mpeg">
+    Dein Browser unterstützt Audio leider nicht.
+  </audio>
+
   <section class="card" id="card">
     <div class="snow" id="snow"></div>
 
@@ -622,6 +601,14 @@
         <div id="courses"></div>
       </div>
     </div>
+
+    <!-- ✅ Attribution Footer (Kevin MacLeod) -->
+    <footer>
+	  "Jingle Bells" Kevin MacLeod (incompetech.com)<br>
+	  Licensed under Creative Commons: By Attribution 4.0 License<br>
+	  http://creativecommons.org/licenses/by/4.0/
+	</footer>
+
   </section>
 
   <div class="fx" id="fx" aria-hidden="true"></div>
@@ -635,7 +622,6 @@
     <div class="bannerIcon">🎆</div>
   </div>
 
-  <!-- Finale Image Overlay -->
   <div class="finale" id="finale" aria-hidden="true">
     <div class="finaleBackdrop"></div>
     <div class="finaleFrame">
@@ -645,25 +631,28 @@
     </div>
   </div>
 
-  <!-- Music UI -->
-  <button class="musicBtn" id="musicBtn" aria-pressed="false" title="Weihnachtsmusik ein/aus">
-    🔔 <span id="musicBtnText">Jingle an</span>
+  <button class="musicBtn" id="musicBtn" aria-pressed="false" title="Musik ein/aus">
+    🔔 <span id="musicBtnText">Musik an</span>
   </button>
-  <div class="musicNote" id="musicNote">Tippe irgendwo, dann startet ein Jingle 🎄🔔</div>
+  <div class="musicNote" id="musicNote">Tippe irgendwo, dann startet Jingle Bells 🎄🔔</div>
 
   <script>
     const isMobile = window.matchMedia("(max-width: 520px)").matches;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // ====== CONFIG: Your finale image here ======
+    // ====== CONFIG ======
+    // Finale Image
     const FINALE_IMAGE_SRC = "finale.png"; // <-- CHANGE THIS
     const FINALE_CAPTION   = "🎁 Überraschung! Frohe Kainachten, Kai! 🎄✨";
     const FINALE_SHOW_MS   = 3200;
-    // ===========================================
+
+    // Music
+    const MUSIC_DEFAULT_VOLUME = isMobile ? 0.65 : 0.55; // start a bit louder on mobile
+    // ====================
 
     // Snow
     const snow = document.getElementById("snow");
-    const flakeCount = isMobile ? 12 : 30; // reduced on mobile for smoother scrolling/animations
+    const flakeCount = isMobile ? 12 : 30;
     for (let i = 0; i < flakeCount; i++){
       const f = document.createElement("div");
       f.className = "flake";
@@ -692,7 +681,7 @@
     }
 
     // Courses
-    const STORAGE = "kainachten_courses_v15";
+    const STORAGE = "kainachten_courses_v16";
     const courses = [
       "Foundations of Coding Front-End",
       "Introduction to Programming With C#",
@@ -716,7 +705,7 @@
     const banner = document.getElementById("banner");
     const card = document.getElementById("card");
 
-    // Finale elements
+    // Finale
     const finale = document.getElementById("finale");
     const finaleImg = document.getElementById("finaleImg");
     const finaleCap = document.getElementById("finaleCap");
@@ -753,7 +742,66 @@
       update(false);
     }
 
-    // ===== WebAudio base =====
+    // ===== Music (Tap-to-play, iOS-safe) =====
+    const bgMusic = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicBtn");
+    const musicBtnText = document.getElementById("musicBtnText");
+    const musicNote = document.getElementById("musicNote");
+
+    let musicArmed = true;
+    let musicPlaying = false;
+
+    // set initial volume
+    bgMusic.volume = MUSIC_DEFAULT_VOLUME;
+
+    async function startMusicFromGesture(){
+      if (!musicArmed) return;
+      musicArmed = false;
+
+      try{
+        // Ensure from a user gesture
+        await bgMusic.play();
+        musicPlaying = true;
+        if (musicBtn) {
+          musicBtn.setAttribute("aria-pressed","true");
+          musicBtnText.textContent = "Musik aus";
+        }
+        if (musicNote) musicNote.classList.add("hide");
+      }catch(e){
+        // If play fails, keep it armed so another tap can try again
+        musicArmed = true;
+      }
+    }
+
+    function toggleMusic(e){
+      e?.stopPropagation?.();
+      if (!musicPlaying){
+        // This click is a user gesture too
+        bgMusic.play().then(()=>{
+          musicPlaying = true;
+          musicBtn.setAttribute("aria-pressed","true");
+          musicBtnText.textContent = "Musik aus";
+          musicNote?.classList.add("hide");
+        }).catch(()=>{});
+      } else {
+        bgMusic.pause();
+        musicPlaying = false;
+        musicBtn.setAttribute("aria-pressed","false");
+        musicBtnText.textContent = "Musik an";
+      }
+    }
+
+    if (musicBtn) musicBtn.addEventListener("click", toggleMusic);
+
+    // first gesture anywhere on page
+    window.addEventListener("pointerdown", startMusicFromGesture, {capture:true, passive:true});
+    window.addEventListener("touchstart", startMusicFromGesture, {capture:true, passive:true});
+    window.addEventListener("mousedown", startMusicFromGesture, {capture:true, passive:true});
+    window.addEventListener("keydown", startMusicFromGesture, {capture:true, passive:true});
+
+    setTimeout(()=>{ musicNote?.classList.add("hide"); }, 5200);
+
+    // ===== Finale FX + Achievement sound (kept) =====
     let audioCtx = null;
     function ensureAudio(){
       if (!audioCtx){
@@ -766,13 +814,11 @@
       return audioCtx;
     }
 
-    // ===== Achievement sound (LOUD) =====
     function playAchievementSound(){
       const ctx = ensureAudio();
       if (!ctx) return;
 
       const now = ctx.currentTime;
-
       const master = ctx.createGain();
       const peak = isMobile ? 0.65 : 0.85;
       master.gain.setValueAtTime(0.0001, now);
@@ -780,387 +826,27 @@
       master.gain.exponentialRampToValueAtTime(0.0001, now + 1.95);
       master.connect(ctx.destination);
 
-      const delay = ctx.createDelay(1.0);
-      delay.delayTime.setValueAtTime(0.18, now);
-      const fb = ctx.createGain(); fb.gain.setValueAtTime(0.32, now);
-      const wet = ctx.createGain(); wet.gain.setValueAtTime(0.44, now);
-      delay.connect(fb); fb.connect(delay);
-      delay.connect(wet); wet.connect(master);
-
-      const send = ctx.createGain();
-      send.gain.setValueAtTime(0.45, now);
-      send.connect(delay);
-
-      const note = (freq, t, dur, type="sine", gain=0.18, detune=0) => {
+      const note = (freq, t, dur, type="sine", gain=0.18) => {
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
         osc.type = type;
-        osc.detune.setValueAtTime(detune, t);
-
-        osc.frequency.setValueAtTime(freq * 0.985, t);
-        osc.frequency.exponentialRampToValueAtTime(freq, t + Math.min(0.06, dur/2));
-
+        osc.frequency.setValueAtTime(freq, t);
         g.gain.setValueAtTime(0.0001, t);
         g.gain.exponentialRampToValueAtTime(gain, t + 0.01);
         g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-
-        osc.connect(g);
-
-        const dry = ctx.createGain();
-        dry.gain.setValueAtTime(1.0, t);
-        g.connect(dry); dry.connect(master);
-
-        g.connect(send);
-
-        osc.start(t);
-        osc.stop(t + dur + 0.02);
-      };
-
-      const shimmer = (t0, dur=0.22, amount=0.22) => {
-        const bufferSize = Math.floor(ctx.sampleRate * dur);
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i=0;i<bufferSize;i++){
-          const env = Math.pow(1 - i/bufferSize, 2.2);
-          data[i] = (Math.random()*2 - 1) * env;
-        }
-        const src = ctx.createBufferSource();
-        src.buffer = buffer;
-
-        const hp = ctx.createBiquadFilter();
-        hp.type = "highpass";
-        hp.frequency.setValueAtTime(2400, t0);
-
-        const lp = ctx.createBiquadFilter();
-        lp.type = "lowpass";
-        lp.frequency.setValueAtTime(14000, t0);
-
-        const g = ctx.createGain();
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(amount, t0 + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-
-        src.connect(hp); hp.connect(lp); lp.connect(g);
-        g.connect(master);
-        g.connect(send);
-
-        src.start(t0);
-        src.stop(t0 + dur + 0.02);
+        osc.connect(g); g.connect(master);
+        osc.start(t); osc.stop(t + dur + 0.02);
       };
 
       const base = now + 0.02;
-      const step = 0.075;
       const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
-
-      freqs.forEach((f, i) => {
-        note(f, base + i*step, 0.22, "triangle", 0.22);
-        note(f, base + i*step + 0.005, 0.20, "sine", 0.14, (Math.random() < .5 ? -9 : 9));
-        if (Math.random() < 0.5) shimmer(base + i*step + 0.02, 0.12, 0.14);
-      });
-
-      const hit = base + freqs.length*step + 0.06;
+      freqs.forEach((f, i)=> note(f, base + i*0.075, 0.22, "triangle", 0.22));
+      const hit = base + freqs.length*0.075 + 0.06;
       note(523.25, hit, 0.85, "sawtooth", 0.14);
       note(659.25, hit, 0.85, "sawtooth", 0.13);
       note(783.99, hit, 0.85, "sawtooth", 0.12);
-      note(1046.50, hit + 0.05, 0.65, "square", 0.09);
-
-      shimmer(hit, 0.26, 0.22);
-
-      const ping = hit + 0.44;
-      note(1318.51, ping, 0.25, "sine", 0.10);
-      note(1567.98, ping + 0.12, 0.25, "sine", 0.09);
-      note(2093.00, ping + 0.24, 0.22, "sine", 0.08);
-
-      shimmer(ping + 0.08, 0.24, 0.18);
-      note(130.81, hit - 0.02, 0.55, "sine", 0.10);
     }
 
-    // ===== Background upbeat JINGLE (bells + groove) =====
-    const musicBtn = document.getElementById("musicBtn");
-    const musicBtnText = document.getElementById("musicBtnText");
-    const musicNote = document.getElementById("musicNote");
-
-    let bg = { playing:false, master:null, timer:null, delay:null, delaySend:null };
-
-    function stopBgMusic(){
-      bg.playing = false;
-      if (bg.timer) clearTimeout(bg.timer);
-      bg.timer = null;
-
-      if (bg.master && audioCtx){
-        const now = audioCtx.currentTime;
-        try{
-          bg.master.gain.cancelScheduledValues(now);
-          bg.master.gain.setValueAtTime(bg.master.gain.value || 0.0001, now);
-          bg.master.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-        }catch(e){}
-      }
-
-      if (musicBtn){
-        musicBtn.setAttribute("aria-pressed","false");
-        musicBtnText.textContent = "Jingle an";
-      }
-    }
-
-    function startBgMusic(){
-      const ctx = ensureAudio();
-      if (!ctx) return;
-      if (bg.playing) return;
-
-      bg.master = ctx.createGain();
-      bg.master.gain.setValueAtTime(0.0001, ctx.currentTime);
-      bg.master.gain.exponentialRampToValueAtTime(isMobile ? 0.20 : 0.27, ctx.currentTime + 0.12);
-      bg.master.connect(ctx.destination);
-
-      bg.delay = ctx.createDelay(1.0);
-      bg.delay.delayTime.setValueAtTime(0.16, ctx.currentTime);
-      const fb = ctx.createGain(); fb.gain.setValueAtTime(0.12, ctx.currentTime);
-      const wet = ctx.createGain(); wet.gain.setValueAtTime(0.26, ctx.currentTime);
-      bg.delay.connect(fb); fb.connect(bg.delay);
-      bg.delay.connect(wet); wet.connect(bg.master);
-
-      bg.delaySend = ctx.createGain();
-      bg.delaySend.gain.setValueAtTime(0.22, ctx.currentTime);
-      bg.delaySend.connect(bg.delay);
-
-      bg.playing = true;
-
-      if (musicBtn){
-        musicBtn.setAttribute("aria-pressed","true");
-        musicBtnText.textContent = "Jingle aus";
-      }
-      if (musicNote) musicNote.classList.add("hide");
-
-      const bpm = 148;
-      const beat = 60 / bpm;
-      const bar = beat * 4;
-      const N = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
-
-      const env = (gainNode, t, peak, a=0.005, d=0.06) => {
-        gainNode.gain.setValueAtTime(0.0001, t);
-        gainNode.gain.exponentialRampToValueAtTime(peak, t + a);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
-      };
-      const connectFx = (node) => { try{ node.connect(bg.delaySend); }catch(e){} };
-
-      function pluck(freq, t, peak){
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        const lp = ctx.createBiquadFilter();
-        lp.type = "lowpass";
-        lp.frequency.setValueAtTime(5200, t);
-
-        o.type = "triangle";
-        o.frequency.setValueAtTime(freq, t);
-        o.frequency.exponentialRampToValueAtTime(freq*0.992, t + 0.08);
-
-        env(g, t, peak, 0.004, 0.10);
-
-        o.connect(lp);
-        lp.connect(g);
-        g.connect(bg.master);
-        connectFx(g);
-
-        o.start(t);
-        o.stop(t + 0.18);
-      }
-
-      function bell(freq, t, peak){
-        const car = ctx.createOscillator();
-        const mod = ctx.createOscillator();
-        const mg = ctx.createGain();
-        const g = ctx.createGain();
-
-        car.type = "sine";
-        mod.type = "sine";
-
-        car.frequency.setValueAtTime(freq, t);
-        mod.frequency.setValueAtTime(freq * 2.1, t);
-
-        mg.gain.setValueAtTime(freq * 0.55, t);
-        mg.gain.exponentialRampToValueAtTime(freq * 0.04, t + 0.18);
-
-        mod.connect(mg);
-        mg.connect(car.frequency);
-
-        env(g, t, peak, 0.003, 0.22);
-
-        car.connect(g);
-        g.connect(bg.master);
-        connectFx(g);
-
-        car.start(t);
-        mod.start(t);
-        car.stop(t + 0.28);
-        mod.stop(t + 0.28);
-      }
-
-      function sleigh(t, peak){
-        const dur = 0.04;
-        const bufferSize = Math.floor(ctx.sampleRate * dur);
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i=0;i<bufferSize;i++){
-          const e = Math.pow(1 - i/bufferSize, 2.6);
-          data[i] = (Math.random()*2 - 1) * e;
-        }
-        const src = ctx.createBufferSource();
-        src.buffer = buffer;
-
-        const bp = ctx.createBiquadFilter();
-        bp.type = "bandpass";
-        bp.frequency.setValueAtTime(7200, t);
-        bp.Q.setValueAtTime(8, t);
-
-        const g = ctx.createGain();
-        env(g, t, peak, 0.002, 0.05);
-
-        src.connect(bp);
-        bp.connect(g);
-        g.connect(bg.master);
-
-        src.start(t);
-        src.stop(t + dur + 0.02);
-      }
-
-      function kick(t, peak){
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = "sine";
-        o.frequency.setValueAtTime(150, t);
-        o.frequency.exponentialRampToValueAtTime(55, t + 0.07);
-        env(g, t, peak, 0.002, 0.14);
-        o.connect(g);
-        g.connect(bg.master);
-        o.start(t);
-        o.stop(t + 0.16);
-      }
-
-      function snare(t, peak){
-        const dur = 0.10;
-        const bufferSize = Math.floor(ctx.sampleRate * dur);
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i=0;i<bufferSize;i++){
-          const e = Math.pow(1 - i/bufferSize, 2.2);
-          data[i] = (Math.random()*2 - 1) * e;
-        }
-        const src = ctx.createBufferSource();
-        src.buffer = buffer;
-
-        const hp = ctx.createBiquadFilter();
-        hp.type = "highpass";
-        hp.frequency.setValueAtTime(1800, t);
-
-        const g = ctx.createGain();
-        env(g, t, peak, 0.002, 0.12);
-
-        src.connect(hp);
-        hp.connect(g);
-        g.connect(bg.master);
-
-        src.start(t);
-        src.stop(t + dur + 0.02);
-      }
-
-      function chordStab(rootMidi, t){
-        const triad = [0, 4, 7];
-        const peak = isMobile ? 0.055 : 0.070;
-        triad.forEach((iv, idx)=>{
-          pluck(N(rootMidi + iv + 12), t + idx*0.006, peak * (idx===0?1:0.9));
-        });
-      }
-
-      function schedule(t0){
-        if (!bg.playing) return;
-
-        const prog = [48, 45, 41, 43];
-        const phraseLen = bar * 8;
-
-        for (let b=0; b<8; b++){
-          const bt = t0 + b*bar;
-
-          kick(bt + 0*beat, isMobile ? 0.16 : 0.22);
-          kick(bt + 2.5*beat, isMobile ? 0.12 : 0.16);
-
-          snare(bt + 1*beat, isMobile ? 0.07 : 0.10);
-          snare(bt + 3*beat, isMobile ? 0.07 : 0.10);
-
-          for (let i=0;i<8;i++){
-            const tt = bt + i*(beat/2);
-            if (Math.random() < 0.92) sleigh(tt, isMobile ? 0.020 : 0.028);
-            if (Math.random() < 0.20) sleigh(tt + 0.01, isMobile ? 0.012 : 0.016);
-          }
-
-          const root = prog[Math.floor(b/2) % prog.length];
-          chordStab(root, bt + 0.02);
-          if (b % 2 === 1) chordStab(root, bt + 2*beat + 0.02);
-        }
-
-        const lead = [
-          {m:76, o:0.0},{m:79, o:0.5},{m:81, o:1.0},{m:79, o:1.5},
-          {m:76, o:2.0},{m:74, o:2.5},{m:76, o:3.0},{m:79, o:3.5},
-          {m:81, o:4.0},{m:79, o:4.5},{m:76, o:5.0},{m:74, o:5.5},
-          {m:76, o:6.0},{m:79, o:6.5},{m:81, o:7.0},{m:84, o:7.5},
-          {m:83, o:8.0},{m:81, o:8.5},{m:79, o:9.0},{m:81, o:9.5},
-          {m:83, o:10.0},{m:81, o:10.5},{m:79, o:11.0},{m:76, o:11.5},
-          {m:74, o:12.0},{m:76, o:12.5},{m:79, o:13.0},{m:81, o:13.5},
-          {m:79, o:14.0},{m:76, o:14.5},{m:79, o:15.0},{m:83, o:15.5},
-          {m:76, o:16.0},{m:79, o:16.5},{m:83, o:17.0},{m:81, o:17.5},
-          {m:79, o:18.0},{m:76, o:18.5},{m:74, o:19.0},{m:76, o:19.5},
-          {m:79, o:20.0},{m:81, o:20.5},{m:84, o:21.0},{m:83, o:21.5},
-          {m:81, o:22.0},{m:79, o:22.5},{m:76, o:23.0},{m:79, o:23.5},
-          {m:81, o:24.0},{m:83, o:24.5},{m:84, o:25.0},{m:88, o:25.5},
-          {m:84, o:26.0},{m:83, o:26.5},{m:81, o:27.0},{m:79, o:27.5},
-          {m:76, o:28.0},{m:79, o:28.5},{m:81, o:29.0},{m:83, o:29.5},
-          {m:81, o:30.0},{m:79, o:30.5},{m:83, o:31.0},{m:84, o:31.5},
-        ];
-
-        const pluckPeak = isMobile ? 0.050 : 0.065;
-        const bellPeak  = isMobile ? 0.040 : 0.055;
-
-        lead.forEach((n, idx)=>{
-          const t = t0 + n.o*(beat/2);
-          pluck(N(n.m), t, pluckPeak);
-          if (idx % 8 === 0 || Math.random() < 0.12) bell(N(n.m + 12), t + 0.01, bellPeak);
-        });
-
-        bg.timer = setTimeout(()=>{
-          if (!bg.playing) return;
-          schedule(ensureAudio().currentTime + 0.08);
-        }, Math.max(0, (phraseLen - 0.5) * 1000));
-      }
-
-      schedule(ctx.currentTime + 0.12);
-    }
-
-    if (musicBtn){
-      musicBtn.addEventListener("click", (e)=>{
-        e.stopPropagation();
-        if (!bg.playing) startBgMusic();
-        else stopBgMusic();
-      });
-    }
-
-    let firstTapArmed = true;
-    function handleFirstUserGesture(){
-      if (!firstTapArmed) return;
-      firstTapArmed = false;
-      startBgMusic();
-
-      window.removeEventListener("pointerdown", handleFirstUserGesture, {capture:true});
-      window.removeEventListener("touchstart", handleFirstUserGesture, {capture:true});
-      window.removeEventListener("mousedown", handleFirstUserGesture, {capture:true});
-      window.removeEventListener("keydown", handleFirstUserGesture, {capture:true});
-    }
-    window.addEventListener("pointerdown", handleFirstUserGesture, {capture:true, passive:true});
-    window.addEventListener("touchstart", handleFirstUserGesture, {capture:true, passive:true});
-    window.addEventListener("mousedown", handleFirstUserGesture, {capture:true, passive:true});
-    window.addEventListener("keydown", handleFirstUserGesture, {capture:true, passive:true});
-
-    setTimeout(()=>{ if (musicNote) musicNote.classList.add("hide"); }, 5200);
-
-    // ===== Finale FX =====
     let partyLock = false;
 
     function update(celebrate){
@@ -1199,8 +885,6 @@
     function megaFinale(){
       playAchievementSound();
 
-      document.body.classList.add("finaleRunning");
-
       card.classList.remove("punch");
       void card.offsetWidth;
       card.classList.add("punch");
@@ -1223,13 +907,10 @@
         const rand = (a,b)=> a + Math.random()*(b-a);
         const pick = ()=> colors[Math.floor(Math.random()*colors.length)];
 
-        // Extra reduction on mobile to avoid stutter
         const STAR_COUNT = isMobile ? 40 : 140;
         const STREAM_COUNT = isMobile ? 18 : 60;
         const CONFETTI_COUNT = isMobile ? 180 : 620;
         const CANNON_COUNT = isMobile ? 70 : 220;
-
-        fx.appendChild(Object.assign(document.createElement("div"), { className:"ripple" }));
 
         for (let i=0;i<STAR_COUNT;i++){
           const s = document.createElement("div");
@@ -1284,7 +965,6 @@
               b.style.width = rand(7,16) + "px";
               b.style.height = rand(7,16) + "px";
               b.style.background = pick();
-
               const dx = side === "left" ? rand(220, (isMobile?760:1040)) : -rand(220, (isMobile?760:1040));
               const dy = rand(-280,280);
               b.style.setProperty("--dx", dx + "px");
@@ -1302,11 +982,7 @@
         setTimeout(()=> { fx.innerHTML = ""; }, 5400);
       }
 
-      // show image near end
       setTimeout(()=> showFinaleImage(), 1200);
-
-      // end “performance mode”
-      setTimeout(()=> document.body.classList.remove("finaleRunning"), 5600);
     }
 
     renderMonths();
