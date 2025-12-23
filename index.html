@@ -18,13 +18,12 @@
       --pink:#f472b6;
       --shadow: 0 34px 100px rgba(0,0,0,.5);
     }
-
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
 
     body{
       margin:0;
-      min-height:100svh; /* stable viewport */
+      min-height:100svh;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color:var(--text);
       background:
@@ -37,9 +36,7 @@
       padding:34px;
       overflow-x:hidden;
       overflow-y:auto;
-
-      /* helps if browser UI overlays top during scroll/focus */
-      scroll-padding-top: 120px;
+      scroll-padding-top: 140px;
     }
 
     /* ✅ Smartphone portrait */
@@ -53,43 +50,63 @@
       }
     }
 
-    /* ✅ Smartphone landscape */
+    /* ✅ Smartphone short landscape */
     @media (max-height: 460px) and (orientation: landscape){
       body{
         place-items:start center;
-        padding-top: calc(10px + env(safe-area-inset-top) + 22px);
+        padding-top: calc(10px + env(safe-area-inset-top) + 14px);
         padding-bottom: calc(10px + env(safe-area-inset-bottom));
         padding-left:16px;
         padding-right:16px;
       }
     }
 
-    /* ✅ Tablet (portrait + landscape baseline) */
+    /* ✅ Tablet baseline */
     @media (min-width: 521px) and (max-width: 1024px){
       body{
         place-items:start center;
         padding-left:28px;
         padding-right:28px;
         padding-bottom: calc(22px + env(safe-area-inset-bottom));
-        /* extra reserve (address bar overlay quirks) */
-        padding-top: calc(34px + env(safe-area-inset-top) + 28px);
+        padding-top: calc(22px + env(safe-area-inset-top));
       }
     }
 
-    /* ✅ Tablet + Landscape (Samsung Tablet + Firefox fix) */
+    /* =========================
+       ✅ Sticky title bar
+       shown ONLY on Tablet Landscape
+       ========================= */
+    .stickyTitle{
+      display:none;
+      width:min(1120px, 100%);
+      margin: 0 auto 14px auto;
+      position: sticky;
+      top: 0;
+      z-index: 20000;
+      border-radius: 18px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+    }
+    .stickyTitle h2{
+      margin:0;
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 950;
+      letter-spacing: -.01em;
+    }
+    .stickyTitle .small{
+      margin-top: 4px;
+      font-size: 13px;
+      color: rgba(243,244,246,.78);
+      font-weight: 700;
+    }
+
     @media (min-width: 521px) and (max-width: 1024px) and (orientation: landscape){
-      body{
-        place-items:start center;
-        /* Firefox Android sometimes overlays address bar without safe-area => add hard reserve */
-        padding-top: calc(18px + env(safe-area-inset-top) + 90px);
-        padding-bottom: calc(18px + env(safe-area-inset-bottom));
-      }
-
-      .card{ padding: 22px; border-radius: 24px; }
-
-      h1{ font-size: clamp(30px, 3.1vw, 46px); line-height: 1.06; }
-      .sub{ font-size: 15px; margin-top: 8px; }
-      .topRow{ margin-bottom: 16px; }
+      body{ place-items:start center; }
+      .stickyTitle{ display:block; }
     }
 
     .card{
@@ -158,11 +175,9 @@
     }
 
     .badgeIcon{
-      width:48px;
-      height:48px;
+      width:48px;height:48px;
       border-radius:14px;
-      display:grid;
-      place-items:center;
+      display:grid;place-items:center;
       background:rgba(0,0,0,.22);
       border:1px solid rgba(255,255,255,.18);
       font-size:24px;
@@ -193,9 +208,7 @@
       grid-template-columns:1.15fr .85fr;
       gap:18px;
     }
-    @media(max-width:980px){
-      .grid{ grid-template-columns:1fr; }
-    }
+    @media(max-width:980px){ .grid{ grid-template-columns:1fr; } }
 
     .panel{
       background:rgba(255,255,255,.07);
@@ -246,28 +259,23 @@
       margin-top:12px;
       align-items:center;
     }
-
     .course{ cursor:pointer; }
     .course:hover{ background:rgba(255,255,255,.085); }
 
-    .course.done,
-    .monthRow.done{
+    .course.done,.monthRow.done{
       background:rgba(52,211,153,.15);
       border-color:rgba(52,211,153,.62);
     }
 
     .check{
-      width:28px;
-      height:28px;
+      width:28px;height:28px;
       border-radius:10px;
       border:1px solid rgba(255,255,255,.32);
-      display:grid;
-      place-items:center;
+      display:grid;place-items:center;
       font-weight:950;
       flex:0 0 auto;
       font-size:16px;
     }
-
     .done .check{
       color:var(--accent2);
       border-color:var(--accent2);
@@ -284,8 +292,7 @@
     /* Snow */
     .snow{ position:absolute; inset:0; pointer-events:none; opacity:.7; }
     .flake{
-      position:absolute;
-      top:-10px;
+      position:absolute; top:-10px;
       border-radius:50%;
       background:white;
       animation: fall linear infinite;
@@ -296,34 +303,29 @@
     }
     @keyframes fall{ to{ transform:translate3d(0,110vh,0); } }
 
-    /* FX layer */
+    /* FX */
     .fx{ position:fixed; inset:0; pointer-events:none; overflow:hidden; contain: paint; }
 
     .piece{
-      position:absolute;
-      top:-30px;
-      opacity:.98;
+      position:absolute; top:-30px; opacity:.98;
       will-change: transform;
       animation: party var(--dur) linear forwards;
       transform: translate3d(0,0,0) rotate(0deg);
       border-radius:3px;
+    }
+    .stream{
+      position:absolute; top:-40px; opacity:.95;
+      animation: party var(--dur) linear forwards;
+      border-radius:999px;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.22));
+      will-change: transform;
+      transform: translate3d(0,0,0);
     }
     @keyframes party{
       to{
         transform: translate3d(var(--dx), 115vh, 0) rotate(var(--rot));
         opacity: .88;
       }
-    }
-
-    .stream{
-      position:absolute;
-      top:-40px;
-      opacity:.95;
-      animation: party var(--dur) linear forwards;
-      border-radius:999px;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.22));
-      will-change: transform;
-      transform: translate3d(0,0,0);
     }
 
     .pop{
@@ -342,11 +344,8 @@
     }
 
     .star{
-      position:absolute;
-      top:-40px;
-      width:12px;
-      height:12px;
-      transform: rotate(0deg);
+      position:absolute; top:-40px;
+      width:12px;height:12px;
       opacity:.95;
       animation: starFall var(--dur) linear forwards;
       filter: drop-shadow(0 10px 18px rgba(0,0,0,.22));
@@ -354,8 +353,7 @@
     }
     .star::before{
       content:"";
-      position:absolute;
-      inset:0;
+      position:absolute; inset:0;
       background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(251,191,36,.85), rgba(255,255,255,0) 70%);
       clip-path: polygon(
         50% 0%, 61% 35%, 98% 35%,
@@ -373,11 +371,8 @@
     }
 
     .ripple{
-      position:fixed;
-      left:50%;
-      top:50%;
-      width:18px;
-      height:18px;
+      position:fixed; left:50%; top:50%;
+      width:18px;height:18px;
       transform: translate(-50%,-50%) scale(.4);
       border-radius:999px;
       border: 3px solid rgba(251,191,36,.9);
@@ -387,17 +382,14 @@
         0 0 140px rgba(52,211,153,.25);
       opacity:.95;
       animation: rippleOut 1.35s ease-out forwards;
+      z-index: 15000;
     }
     @keyframes rippleOut{
-      to{
-        transform: translate(-50%,-50%) scale(32);
-        opacity:0;
-      }
+      to{ transform: translate(-50%,-50%) scale(32); opacity:0; }
     }
 
     .overlay{
-      position:fixed;
-      inset:0;
+      position:fixed; inset:0;
       pointer-events:none;
       opacity:0;
       background:
@@ -406,6 +398,7 @@
         radial-gradient(700px 500px at 70% 60%, rgba(96,165,250,.16), transparent 62%),
         rgba(0,0,0,.22);
       transition: opacity .35s ease;
+      z-index: 12000;
     }
     .overlay.show{ opacity:1; }
 
@@ -428,48 +421,30 @@
       gap:12px;
       backdrop-filter: blur(10px);
       will-change: transform, opacity;
+      z-index: 18000;
     }
     .banner.show{ animation: bannerIn .55s ease forwards; }
     @keyframes bannerIn{
       to{ opacity:1; transform: translateX(-50%) translateY(0); }
     }
-    .bannerTitle{
-      margin:0;
-      font-weight:950;
-      font-size:19px;
-      letter-spacing:-.01em;
-    }
-    .bannerSub{
-      margin:3px 0 0 0;
-      color:rgba(243,244,246,.80);
-      font-size:13px;
-    }
-    .bannerIcon{
-      font-size:28px;
-      flex:0 0 auto;
-      filter: drop-shadow(0 6px 16px rgba(0,0,0,.35));
-    }
+    .bannerTitle{ margin:0; font-weight:950; font-size:19px; letter-spacing:-.01em; }
+    .bannerSub{ margin:3px 0 0 0; color:rgba(243,244,246,.80); font-size:13px; }
+    .bannerIcon{ font-size:28px; filter: drop-shadow(0 6px 16px rgba(0,0,0,.35)); }
 
-    /* Finale Image Overlay */
+    /* Finale image overlay */
     .finale{
-      position:fixed;
-      inset:0;
-      display:grid;
-      place-items:center;
+      position:fixed; inset:0;
+      display:grid; place-items:center;
       pointer-events:none;
       opacity:0;
       transform: scale(.94);
       transition: opacity .35s ease, transform .35s ease;
-      z-index: 9999;
+      z-index: 22000;
       will-change: transform, opacity;
     }
-    .finale.show{
-      opacity:1;
-      transform: scale(1);
-    }
+    .finale.show{ opacity:1; transform: scale(1); }
     .finaleBackdrop{
-      position:absolute;
-      inset:0;
+      position:absolute; inset:0;
       background:
         radial-gradient(800px 500px at 50% 40%, rgba(251,191,36,.25), transparent 62%),
         radial-gradient(700px 520px at 40% 60%, rgba(52,211,153,.14), transparent 64%),
@@ -494,8 +469,7 @@
       object-fit:cover;
     }
     .finaleGlow{
-      position:absolute;
-      inset:-20%;
+      position:absolute; inset:-20%;
       background:
         radial-gradient(circle at 30% 30%, rgba(251,191,36,.22), transparent 60%),
         radial-gradient(circle at 70% 70%, rgba(52,211,153,.16), transparent 60%);
@@ -503,10 +477,7 @@
       pointer-events:none;
     }
     .finaleCap{
-      position:absolute;
-      left:16px;
-      right:16px;
-      bottom:14px;
+      position:absolute; left:16px; right:16px; bottom:14px;
       padding:10px 12px;
       border-radius:16px;
       border:1px solid rgba(255,255,255,.18);
@@ -519,9 +490,7 @@
 
     /* Music UI */
     .musicBtn{
-      position:fixed;
-      left:14px;
-      bottom:14px;
+      position:fixed; left:14px; bottom:14px;
       padding:10px 12px;
       border-radius:16px;
       background: rgba(255,255,255,.10);
@@ -533,17 +502,13 @@
       cursor:pointer;
       user-select:none;
       box-shadow: 0 18px 60px rgba(0,0,0,.25);
-      display:flex;
-      align-items:center;
-      gap:8px;
-      z-index: 10000;
+      display:flex; align-items:center; gap:8px;
+      z-index: 23000;
     }
     .musicBtn:hover{ background: rgba(255,255,255,.14); }
 
     .musicNote{
-      position:fixed;
-      left:14px;
-      bottom:54px;
+      position:fixed; left:14px; bottom:54px;
       padding:8px 10px;
       border-radius:14px;
       background: rgba(0,0,0,.20);
@@ -554,12 +519,9 @@
       pointer-events:none;
       transition: opacity .35s ease, transform .35s ease;
       max-width: 280px;
-      z-index: 10000;
+      z-index: 23000;
     }
-    .musicNote.hide{
-      opacity:0;
-      transform: translateY(8px);
-    }
+    .musicNote.hide{ opacity:0; transform: translateY(8px); }
 
     footer{
       margin-top:18px;
@@ -569,12 +531,7 @@
       line-height:1.5;
     }
 
-    /* During finale */
-    body.finaleRunning .snow{ opacity:.18; }
-    body.finaleRunning .flake{ filter:none; }
-    body.finaleRunning .banner{ backdrop-filter:none; }
-
-    /* Mobile typography adjustments */
+    /* Mobile polish */
     @media (max-width: 520px){
       .card{ padding:18px; border-radius:22px; }
       .topRow{ margin-bottom:14px; gap:12px; }
@@ -600,6 +557,10 @@
       .stream{ filter:none; }
     }
 
+    body.finaleRunning .snow{ opacity:.18; }
+    body.finaleRunning .flake{ filter:none; }
+    body.finaleRunning .banner{ backdrop-filter:none; }
+
     @media (prefers-reduced-motion: reduce){
       .flake, .piece, .stream, .pop, .star, .overlay, .banner, .ripple { display:none !important; }
       .fill{ transition:none; }
@@ -612,6 +573,12 @@
   <audio id="bgMusic" preload="auto" loop>
     <source src="jingle-bells.mp3" type="audio/mpeg">
   </audio>
+
+  <!-- ✅ Sticky header only for Tablet Landscape -->
+  <div class="stickyTitle" id="stickyTitle" aria-hidden="true">
+    <h2>🎄 Frohe Kainachten, Kai! ✨</h2>
+    <div class="small">💖 Grüße von Michi, Nastya, Frauke &amp; Maggi 🎁</div>
+  </div>
 
   <section class="card" id="card">
     <div class="snow" id="snow"></div>
@@ -695,12 +662,29 @@
     const isShortLandscape = isLandscape && window.matchMedia("(max-height: 460px)").matches;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // ====== CONFIG ======
+    // CONFIG
     const FINALE_IMAGE_SRC = "finale.png";
     const FINALE_CAPTION   = "🎁 Überraschung! Frohe Kainachten, Kai! 🎄✨";
     const FINALE_SHOW_MS   = 3200;
     const MUSIC_DEFAULT_VOLUME = isMobile ? 0.65 : 0.55;
-    // ====================
+
+    // ✅ Force scroll-to-top on load and orientation change (Firefox Android quirk fix)
+    function hardScrollTop(){
+      try{
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      }catch{
+        window.scrollTo(0,0);
+      }
+      // second tick to beat browser UI relayout
+      setTimeout(()=>{ try{ window.scrollTo(0,0); }catch{} }, 80);
+      setTimeout(()=>{ try{ window.scrollTo(0,0); }catch{} }, 250);
+    }
+    window.addEventListener("load", hardScrollTop);
+    window.addEventListener("orientationchange", ()=> setTimeout(hardScrollTop, 120));
+    window.addEventListener("resize", ()=> {
+      // only when near top to avoid annoying user
+      if (window.scrollY < 40) setTimeout(hardScrollTop, 80);
+    });
 
     // Snow
     const snow = document.getElementById("snow");
@@ -717,7 +701,7 @@
       snow.appendChild(f);
     }
 
-    // Months (read-only)
+    // Months read-only
     const MONTHS = ["November","Dezember","Januar","Februar","März"];
     const MONTH_STATUS = [true,true,false,false,false]; // <-- change here
     function renderMonths(){
@@ -733,7 +717,7 @@
     }
 
     // Courses
-    const STORAGE = "kainachten_courses_samsungtablet";
+    const STORAGE = "kainachten_courses_stickyheader";
     const courses = [
       "Foundations of Coding Front-End",
       "Introduction to Programming With C#",
@@ -794,14 +778,13 @@
       update(false);
     }
 
-    // ===== Music (Tap-to-play, iOS/Android-safe) =====
+    // Music tap-to-play
     const bgMusic = document.getElementById("bgMusic");
     const musicBtn = document.getElementById("musicBtn");
     const musicBtnText = document.getElementById("musicBtnText");
     const musicNote = document.getElementById("musicNote");
 
     bgMusic.volume = MUSIC_DEFAULT_VOLUME;
-
     let musicArmed = true;
     let musicPlaying = false;
 
@@ -835,14 +818,14 @@
         musicBtnText.textContent = "Musik an";
       }
     }
-
     musicBtn.addEventListener("click", toggleMusic);
+
     ["pointerdown","touchstart","mousedown","keydown"].forEach(ev=>{
       window.addEventListener(ev, startMusicFromGesture, {capture:true, passive:true});
     });
     setTimeout(()=>{ musicNote?.classList.add("hide"); }, 5200);
 
-    // ===== Achievement sound (WebAudio) =====
+    // Achievement sound (WebAudio)
     let audioCtx = null;
     function ensureAudio(){
       if (!audioCtx){
@@ -911,7 +894,7 @@
       note(1046.50, hit + 0.05, 0.65, "square", 0.09);
     }
 
-    // ===== Progress UI + Finale =====
+    // Progress + Finale
     let partyLock = false;
 
     function update(celebrate){
@@ -973,9 +956,7 @@
         const rand = (a,b)=> a + Math.random()*(b-a);
         const pick = ()=> colors[Math.floor(Math.random()*colors.length)];
 
-        // ✅ Only ultra-short landscape needs lite finale (phones). Tablet stays full.
-        const liteFinale = isShortLandscape;
-
+        const liteFinale = isShortLandscape; // only ultra-short phone landscape
         const STAR_COUNT = liteFinale ? 18 : (isMobile ? 40 : 140);
         const STREAM_COUNT = liteFinale ? 9  : (isMobile ? 18 : 60);
         const CONFETTI_COUNT = liteFinale ? 90 : (isMobile ? 180 : 620);
